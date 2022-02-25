@@ -144,7 +144,14 @@ class ReportPortalReporter extends Reporter {
       const attrs = suite.tags.map((t) => new Attribute(undefined, t.name));
       suiteStartObj.attributes.push(...attrs);
     }
-    suiteStartObj.description = this.sanitizedCapabilities;
+    if (this.reporterOptions.addCucumberRuleToScenario && isCucumberScenario && suite.rule) {
+      suiteStartObj.attributes.push(new Attribute('rule', suite.rule));
+    }
+    if (this.reporterOptions.addCucumberDescriptions && suite.description) {
+      suiteStartObj.description = suite.description;
+    } else {
+      suiteStartObj.description = this.sanitizedCapabilities;
+    }
     const {tempId, promise} = this.client.startTestItem(
       suiteStartObj,
       this.tempLaunchId,
