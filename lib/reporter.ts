@@ -140,7 +140,7 @@ class ReportPortalReporter extends Reporter {
     }
     if (this.reporterOptions.parseTagsFromTestTitle) {
       suiteStartObj.addTags();
-    } else if (this.reporterOptions.addTagsToScenario && isCucumberScenario) {
+    } else if (this.reporterOptions.addCucumberTags) {
       const attrs = suite.tags.map((t) => new Attribute(undefined, t.name));
       suiteStartObj.attributes.push(...attrs);
     }
