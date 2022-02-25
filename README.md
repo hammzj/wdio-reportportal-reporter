@@ -52,6 +52,7 @@ const conf = {
   autoAttachScreenshots: false, // automatically add screenshots
   screenshotsLogLevel: 'info', // log level for screenshots
   parseTagsFromTestTitle: false, // parse strings like `@foo` from titles and add to Report Portal
+  addTagsToScenario: false, //adds tags from scenario to Report Portal. Does not work if "parseTagsFromTestTitle" is true
   cucumberNestedSteps: false, // report cucumber steps as Report Portal steps
   autoAttachCucumberFeatureToScenario: false, // requires cucumberNestedSteps to be true for use
   sanitizeErrorMessages: true, // strip color ascii characters from error stacktrace

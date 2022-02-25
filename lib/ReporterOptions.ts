@@ -30,6 +30,7 @@ export default class ReporterOptions {
   public sauceLabOptions?: SauceLabOptions
   public cucumberNestedSteps = false;
   public autoAttachCucumberFeatureToScenario = false;
+  public addTagsToScenario = false;
   public sanitizeErrorMessages = true;
   public reportPortalClientConfig = {mode: MODE.DEFAULT, attributes: [Attribute], description: ""};
 }

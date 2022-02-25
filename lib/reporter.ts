@@ -140,6 +140,9 @@ class ReportPortalReporter extends Reporter {
     }
     if (this.reporterOptions.parseTagsFromTestTitle) {
       suiteStartObj.addTags();
+    } else if (this.reporterOptions.addTagsToScenario && isCucumberScenario) {
+      const attrs = suite.tags.map((t) => new Attribute(undefined, t.name));
+      suiteStartObj.attributes.push(...attrs);
     }
     suiteStartObj.description = this.sanitizedCapabilities;
     const {tempId, promise} = this.client.startTestItem(
@@ -154,13 +157,13 @@ class ReportPortalReporter extends Reporter {
   onSuiteEnd(suite) {
     log.debug(`End suite ${suite.title} ${suite.uid}`);
 
-    const isSomeTestFailed = suite.tests.some(({ state }) => state === WDIO_TEST_STATUS.FAILED);
+    const isSomeTestFailed = suite.tests.some(({state}) => state === WDIO_TEST_STATUS.FAILED);
     let suiteStatus = isSomeTestFailed ? STATUS.FAILED : STATUS.PASSED;
     if (this.reporterOptions.cucumberNestedSteps) {
       switch (suite.type) {
         case CUCUMBER_TYPE.SCENARIO:
           const scenarioStepsAllPassed = suite.tests.every(({state}) => state === WDIO_TEST_STATUS.PASSED);
-          const scenarioStepsAllSkipped = suite.tests.every(({ state }) => state === WDIO_TEST_STATUS.SKIPPED);
+          const scenarioStepsAllSkipped = suite.tests.every(({state}) => state === WDIO_TEST_STATUS.SKIPPED);
           suiteStatus = scenarioStepsAllPassed ? STATUS.PASSED : scenarioStepsAllSkipped ? STATUS.SKIPPED : STATUS.FAILED;
           this.featureStatus = this.featureStatus === STATUS.PASSED && suiteStatus === STATUS.PASSED ? STATUS.PASSED : STATUS.FAILED;
           break;
@@ -184,7 +187,7 @@ class ReportPortalReporter extends Reporter {
     }
     const suite = this.storage.getCurrentSuite();
     const testStartObj = new StartTestItem(test.title, type);
-    if(this.isCucumberFramework) {
+    if (this.isCucumberFramework) {
       addCodeRefCucumber(this.specFilePath, test, testStartObj)
     } else {
       addCodeRef(this.specFilePath, test.fullTitle, testStartObj)
@@ -323,7 +326,12 @@ class ReportPortalReporter extends Reporter {
       return;
     }
     const isScreenshot = isScreenshotCommand(command) && command.result.value;
-    const {autoAttachScreenshots, screenshotsLogLevel, seleniumCommandsLogLevel, reportSeleniumCommands} = this.reporterOptions;
+    const {
+      autoAttachScreenshots,
+      screenshotsLogLevel,
+      seleniumCommandsLogLevel,
+      reportSeleniumCommands
+    } = this.reporterOptions;
     if (isScreenshot) {
       if (autoAttachScreenshots) {
         const obj = {
@@ -360,7 +368,7 @@ class ReportPortalReporter extends Reporter {
     }
   }
 
-  private getReportPortalClient(): ReportPortalClient{
+  private getReportPortalClient(): ReportPortalClient {
     return new ReportPortalClient(this.reporterOptions.reportPortalClientConfig);
   }
 
@@ -405,7 +413,7 @@ class ReportPortalReporter extends Reporter {
       return;
     }
 
-    const {promise} = this.client.sendLog(testItem.id, {level , message}, {name, content, type, message});
+    const {promise} = this.client.sendLog(testItem.id, {level, message}, {name, content, type, message});
     promiseErrorHandler(promise);
   }
 
