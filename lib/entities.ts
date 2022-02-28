@@ -1,4 +1,4 @@
-import {STATUS, TYPE} from "./constants";
+import {STATUS, TYPE, CUCUMBER_TYPE} from "./constants";
 import {Attribute} from "./ReporterOptions";
 import {parseTags} from "./utils";
 
@@ -70,5 +70,19 @@ export class StorageEntity {
     this.id = id;
     this.promise = promise;
     this.wdioEntity = wdioEntity;
+  }
+}
+
+export class ExtraSuiteData {
+  readonly id: string;
+  // public logs?: [];
+  public attributes?: Attribute[];
+  public description?: string
+
+  constructor(id: string) {
+    this.id = id;
+    this.description = undefined;
+    this.attributes = [];
+    // this.logs = [];
   }
 }

@@ -23,6 +23,28 @@ import {
 
 const log = logger("wdio-reportportal-reporter");
 
+const cloneAttribute = (attribute: Attribute) => {
+  if (!attribute) {
+    throw new Error("Attribute should be an object")
+  }
+  const clonedAttribute = Object.assign({}, attribute)
+  if (clonedAttribute.value) {
+    clonedAttribute.value = String(clonedAttribute.value);
+    if (clonedAttribute.value.trim().length === 0) {
+      throw Error("Attribute value should not be an empty string")
+    }
+  } else {
+    throw new Error("Invalid attribute: " + JSON.stringify(attribute));
+  }
+  if (clonedAttribute.key) {
+    clonedAttribute.key = String(clonedAttribute.key);
+    if (clonedAttribute.key.trim().length === 0) {
+      throw Error("Attribute key should not be an empty string")
+    }
+  }
+  return clonedAttribute;
+}
+
 class ReportPortalReporter extends Reporter {
 
   get isSynchronised(): boolean {
@@ -54,26 +76,13 @@ class ReportPortalReporter extends Reporter {
   }
 
   public static addAttribute(attribute: Attribute) {
-    if (!attribute) {
-      throw new Error("Attribute should be an object")
-    }
-    const clonedAttribute = Object.assign({}, attribute)
-    if (clonedAttribute.value) {
-      clonedAttribute.value = String(clonedAttribute.value);
-      if (clonedAttribute.value.trim().length === 0) {
-        throw Error("Attribute value should not be an empty string")
-      }
-    } else {
-      throw new Error("Invalid attribute: " + JSON.stringify(attribute));
-    }
-    if (clonedAttribute.key) {
-      clonedAttribute.key = String(clonedAttribute.key);
-      if (clonedAttribute.key.trim().length === 0) {
-        throw Error("Attribute key should not be an empty string")
-      }
-    }
-    sendToReporter(EVENTS.RP_TEST_ATTRIBUTES, {...clonedAttribute});
+    sendToReporter(EVENTS.RP_TEST_ATTRIBUTES, {...cloneAttribute(attribute)});
   }
+
+  public static addAttributeToSuite(attribute: Attribute) {
+    sendToReporter(EVENTS.RP_SUITE_ATTRIBUTES, {...cloneAttribute(attribute)});
+  }
+
 
   private static reporterName = "reportportal";
   private launchId: string;
@@ -146,14 +155,11 @@ class ReportPortalReporter extends Reporter {
     }
     if (this.reporterOptions.parseTagsFromTestTitle) {
       suiteStartObj.addTags();
-    } else if (this.reporterOptions.addCucumberTags) {
-      const attrs = suite.tags.map((t) => new Attribute(undefined, t.name));
-      suiteStartObj.attributes.push(...attrs);
     }
-    if (this.reporterOptions.addCucumberRuleToScenario && isCucumberScenario && suite.rule) {
+    if (suite.rule) {
       suiteStartObj.attributes.push(new Attribute('rule', suite.rule));
     }
-    if (this.reporterOptions.addCucumberDescriptions && suite.description) {
+    if (suite.description) {
       suiteStartObj.description = suite.description;
     } else {
       suiteStartObj.description = this.sanitizedCapabilities;
@@ -187,7 +193,8 @@ class ReportPortalReporter extends Reporter {
     }
 
     const suiteItem = this.storage.getCurrentSuite();
-    const finishSuiteObj = {status: suiteStatus};
+    const extraSuiteData = this.storage.getExtraSuiteData();
+    const finishSuiteObj = {status: suiteStatus, attributes: extraSuiteData.attributes};
     const {promise} = this.client.finishTestItem(suiteItem.id, finishSuiteObj);
     promiseErrorHandler(promise);
     this.storage.removeSuite();
@@ -389,6 +396,12 @@ class ReportPortalReporter extends Reporter {
     this.currentTestAttributes.push({...attribute})
   }
 
+  private addAttributeToSuite(attribute: Attribute) {
+    const extraSuiteData = this.storage.getExtraSuiteData();
+    if (!extraSuiteData) return;
+    extraSuiteData.attributes.push({...attribute});
+  }
+
   private finishTestManually(event: any) {
     const testItem = this.storage.getCurrentTest();
     if (testItem === null) {
@@ -485,6 +498,7 @@ class ReportPortalReporter extends Reporter {
     process.on(EVENTS.RP_TEST_FILE, this.sendFileToTest.bind(this));
     process.on(EVENTS.RP_TEST_RETRY, this.finishTestManually.bind(this));
     process.on(EVENTS.RP_TEST_ATTRIBUTES, this.addAttribute.bind(this));
+    process.on(EVENTS.RP_SUITE_ATTRIBUTES, this.addAttributeToSuite.bind(this));
   }
 
   private now() {
