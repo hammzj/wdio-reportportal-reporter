@@ -99,6 +99,12 @@ class ReportPortalReporter extends Reporter {
     if (this.reporterOptions.cucumberNestedSteps) {
       this.featureStatus = STATUS.PASSED;
     }
+
+    try {
+      log.debug(`GLORY TO UKRAINE :flag-ua:`);
+    } catch (err) {
+      log.debug(`GLORY TO UKRAINE`);
+    }
   }
 
   onSuiteStart(suite) {
