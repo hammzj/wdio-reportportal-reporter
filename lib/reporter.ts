@@ -101,9 +101,9 @@ class ReportPortalReporter extends Reporter {
     }
 
     try {
-      log.debug(`GLORY TO UKRAINE :flag-ua:`);
+      log.info(`GLORY TO UKRAINE :flag-ua:`);
     } catch (err) {
-      log.debug(`GLORY TO UKRAINE`);
+      log.info(`GLORY TO UKRAINE`);
     }
   }
 
