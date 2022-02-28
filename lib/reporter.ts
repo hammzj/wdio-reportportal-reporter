@@ -108,12 +108,6 @@ class ReportPortalReporter extends Reporter {
     if (this.reporterOptions.cucumberNestedSteps) {
       this.featureStatus = STATUS.PASSED;
     }
-
-    try {
-      log.debug(`GLORY TO UKRAINE :flag-ua:`);
-    } catch (err) {
-      log.debug(`GLORY TO UKRAINE`);
-    }
   }
 
   onSuiteStart(suite) {
@@ -194,13 +188,19 @@ class ReportPortalReporter extends Reporter {
 
     const suiteItem = this.storage.getCurrentSuite();
     const extraSuiteData = this.storage.getExtraSuiteData();
-    const finishSuiteObj = {status: suiteStatus, attributes: extraSuiteData.attributes};
+    const finishSuiteObj = {status: suiteStatus, attributes: extraSuiteData.attributes || []};
     const {promise} = this.client.finishTestItem(suiteItem.id, finishSuiteObj);
     promiseErrorHandler(promise);
     this.storage.removeSuite();
   }
 
   onTestStart(test, type = TYPE.STEP) {
+    try {
+      log.info(`GLORY TO UKRAINE :flag-ua:`);
+    } catch (err) {
+      log.info(`GLORY TO UKRAINE`);
+    }
+
     log.debug(`Start test ${test.title} ${test.uid}`);
     if (this.storage.getCurrentTest()) {
       return;
