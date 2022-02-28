@@ -32,7 +32,9 @@ export class Storage {
 
   private addExtraDataToSuite(key: string, data: object) {
     const extraSuiteData = this.getExtraSuiteData();
-    if (!extraSuiteData) return;
+    if (!extraSuiteData) {
+      return;
+    }
     extraSuiteData[key] = data;
   }
 

@@ -147,11 +147,13 @@ class ReportPortalReporter extends Reporter {
     if (suiteItem !== null) {
       parentId = suiteItem.id;
     }
-    if (this.reporterOptions.parseTagsFromTestTitle) {
-      suiteStartObj.addTags();
-    }
     if (suite.rule) {
       suiteStartObj.attributes.push(new Attribute('rule', suite.rule));
+    }
+    if (this.reporterOptions.parseTagsFromTestTitle) {
+      suiteStartObj.addTags();
+    } else if (suite.tags) {
+      for (const t of suite.tags) suiteStartObj.attributes.push(new Attribute(undefined, t.name));
     }
     if (suite.description) {
       suiteStartObj.description = suite.description;
@@ -398,7 +400,9 @@ class ReportPortalReporter extends Reporter {
 
   private addAttributeToSuite(attribute: Attribute) {
     const extraSuiteData = this.storage.getExtraSuiteData();
-    if (!extraSuiteData) return;
+    if (!extraSuiteData) {
+      return;
+    }
     extraSuiteData.attributes.push({...attribute});
   }
 
