@@ -79,7 +79,6 @@ class ReportPortalReporter extends Reporter {
     sendToReporter(EVENTS.RP_TEST_ATTRIBUTES, {attribute, suite});
   }
 
-
   private static reporterName = "reportportal";
   private launchId: string;
   private client: ReportPortalClient;
