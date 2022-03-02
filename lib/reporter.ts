@@ -75,12 +75,8 @@ class ReportPortalReporter extends Reporter {
     sendToReporter(EVENTS.RP_TEST_RETRY, {test});
   }
 
-  public static addAttribute(attribute: Attribute) {
-    sendToReporter(EVENTS.RP_TEST_ATTRIBUTES, {...cloneAttribute(attribute)});
-  }
-
-  public static addAttributeToSuite(attribute: Attribute) {
-    sendToReporter(EVENTS.RP_SUITE_ATTRIBUTES, {...cloneAttribute(attribute)});
+  public static addAttribute(attribute: Attribute, suite = false) {
+    sendToReporter(EVENTS.RP_TEST_ATTRIBUTES, {attribute, suite});
   }
 
 
@@ -189,8 +185,8 @@ class ReportPortalReporter extends Reporter {
     }
 
     const suiteItem = this.storage.getCurrentSuite();
-    const extraSuiteData = this.storage.getExtraSuiteData();
-    const finishSuiteObj = {status: suiteStatus, attributes: extraSuiteData.attributes || []};
+    const {attributes} = this.storage.getExtraSuiteData();
+    const finishSuiteObj = {status: suiteStatus, attributes};
     const {promise} = this.client.finishTestItem(suiteItem.id, finishSuiteObj);
     promiseErrorHandler(promise);
     this.storage.removeSuite();
@@ -394,16 +390,14 @@ class ReportPortalReporter extends Reporter {
     return new ReportPortalClient(this.reporterOptions.reportPortalClientConfig);
   }
 
-  private addAttribute(attribute: Attribute) {
-    this.currentTestAttributes.push({...attribute})
-  }
-
-  private addAttributeToSuite(attribute: Attribute) {
-    const extraSuiteData = this.storage.getExtraSuiteData();
-    if (!extraSuiteData) {
-      return;
+  private addAttribute({attribute, suite}) {
+    if (suite) {
+      const extraSuiteData = this.storage.getExtraSuiteData();
+      if (!extraSuiteData) return;
+      extraSuiteData.attributes.push({...cloneAttribute(attribute)});
+    } else {
+      this.currentTestAttributes.push({...cloneAttribute(attribute)});
     }
-    extraSuiteData.attributes.push({...attribute});
   }
 
   private finishTestManually(event: any) {
@@ -502,7 +496,6 @@ class ReportPortalReporter extends Reporter {
     process.on(EVENTS.RP_TEST_FILE, this.sendFileToTest.bind(this));
     process.on(EVENTS.RP_TEST_RETRY, this.finishTestManually.bind(this));
     process.on(EVENTS.RP_TEST_ATTRIBUTES, this.addAttribute.bind(this));
-    process.on(EVENTS.RP_SUITE_ATTRIBUTES, this.addAttributeToSuite.bind(this));
   }
 
   private now() {

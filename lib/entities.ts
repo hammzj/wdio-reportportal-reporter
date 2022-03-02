@@ -75,14 +75,16 @@ export class StorageEntity {
 
 export class ExtraSuiteData {
   readonly id: string;
-  // public logs?: [];
+  public logs?: [];
   public attributes?: Attribute[];
+  public parameters?: Attribute[];
   public description?: string
 
   constructor(id: string) {
     this.id = id;
-    this.description = undefined;
+    this.logs = [];
     this.attributes = [];
-    // this.logs = [];
+    this.parameters = [];
+    this.description = undefined;
   }
 }

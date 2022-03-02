@@ -5,7 +5,6 @@ export enum EVENTS {
   RP_TEST_FILE = "rp:failedFile",
   RP_TEST_RETRY = "rp:testRetry",
   RP_TEST_ATTRIBUTES = "rp:testAttributes",
-  RP_SUITE_ATTRIBUTES = "rp:suiteAttributes",
   RP_LOG_SUITE = "rp:logSuite",
 }
 
