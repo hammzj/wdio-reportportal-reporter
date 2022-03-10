@@ -93,7 +93,6 @@ class ReportPortalReporter extends Reporter {
   private specFilePath: string;
   private featureStatus: STATUS;
   private featureName: string;
-  private currentTestAttributes: Attribute[] = [];
 
   constructor(options: any) {
     super(options);
@@ -273,12 +272,11 @@ class ReportPortalReporter extends Reporter {
         message,
       });
     }
-    finishTestObj.attributes = [...this.currentTestAttributes];
+    finishTestObj.attributes = [...this.storage.getExtraTestData().attributes];
     const {promise} = this.client.finishTestItem(testItem.id, finishTestObj);
     promiseErrorHandler(promise);
 
     this.storage.removeTest(testItem);
-    this.currentTestAttributes = [];
   }
 
   onRunnerStart(runner) {
@@ -392,10 +390,12 @@ class ReportPortalReporter extends Reporter {
   private addAttribute({attribute, suite}) {
     if (suite) {
       const extraSuiteData = this.storage.getExtraSuiteData();
-      if (!extraSuiteData) return;
-      extraSuiteData.attributes.push({...cloneAttribute(attribute)});
+      if (extraSuiteData) {
+        extraSuiteData.attributes.push({...cloneAttribute(attribute)});
+      }
     } else {
-      this.currentTestAttributes.push({...cloneAttribute(attribute)});
+      const extraTestData = this.storage.getExtraTestData();
+      extraTestData.attributes.push({...cloneAttribute(attribute)});
     }
   }
 

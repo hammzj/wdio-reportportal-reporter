@@ -88,3 +88,12 @@ export class ExtraSuiteData {
     this.description = undefined;
   }
 }
+export class ExtraTestData {
+  readonly id: string;
+  public attributes?: Attribute[];
+
+  constructor(id: string) {
+    this.id = id;
+    this.attributes = [];
+  }
+}
